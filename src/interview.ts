@@ -20,20 +20,6 @@ export const interview = async () => {
     `Rate Limit details: You currently have ${initialRatelimit.remaining} of ${initialRatelimit.limit} requests remaining.`
   );
 
-  const { orgOrUser } = await prompts({
-    type: "select",
-    name: "orgOrUser",
-    message: "Is this an organization or a user?",
-    choices: ["user", "org"],
-  });
-
-  const { username } = await prompts({
-    type: "text",
-    name: "username",
-    message: "Enter the username or organization name:",
-  });
-  const isOrg = orgOrUser === "org";
-
   async function iterate<R extends OctokitTypes.RequestInterface>(
     request: R,
     parameters?: Parameters<R>[0]
@@ -50,12 +36,47 @@ export const interview = async () => {
     }
   }
 
-  const repos = await iterate(isOrg ? octokit.rest.repos.listForOrg : octokit.rest.repos.listForUser, {
-    username,
-    type: "all",
-  }); // .filter(({owner}) => true);
+  const { orgOrUser: orgOrUserOrSpecific } = await prompts({
+    type: "select",
+    name: "orgOrUser",
+    message: "Take out repositories of an organization or a user, or specific repositories?",
+    choices: ["user", "org", "specific"],
+  });
 
-  console.log(`Found ${repos.length} repos`);
+  const repos: any[] = [];
+
+  let isOrg = false;
+  let username = "";
+
+  if (orgOrUserOrSpecific === 2) {
+    for (;;) {
+      const { ownerAndRepo } = await prompts({
+        type: "text",
+        name: "ownerAndRepo",
+        message: "Repository (<owner>/<repo>)",
+        initial: repos.length > 0 ? "(done)" : "",
+      });
+      if (ownerAndRepo === "(done)") break;
+
+      const [owner, repo] = ownerAndRepo.split("/");
+      if (username === "") username = owner;
+      repos.push((await octokit.rest.repos.get({ owner, repo })).data);
+    }
+  } else {
+    username = (await prompts({
+      type: "text",
+      name: "username",
+      message: "Enter the username or organization name:",
+    })).username;
+    isOrg = orgOrUserOrSpecific === 1;
+
+    repos.push(...await iterate((isOrg ? octokit.rest.repos.listForOrg : octokit.rest.repos.listForUser) as any, {
+      username,
+      type: "all",
+    }));
+
+    console.log(`Found ${repos.length} repos`);
+  }
 
   const { output } = await prompts({
     type: "text",
