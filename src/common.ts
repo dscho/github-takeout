@@ -4,7 +4,6 @@ import * as fs from "fs-extra";
 import { pipeline } from "node:stream";
 import { promisify } from "node:util";
 import { createWriteStream } from "fs-extra";
-import fetch from "node-fetch";
 
 const streamPipeline = promisify(pipeline);
 
