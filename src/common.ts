@@ -1,7 +1,7 @@
 import * as OctokitTypes from "@octokit/types";
 import { Octokit, RestEndpointMethodTypes } from "@octokit/rest";
 import * as fs from "fs-extra";
-import { pipeline } from "node:stream";
+import { PipelineSource, pipeline } from "node:stream";
 import { promisify } from "node:util";
 import { createWriteStream } from "fs-extra";
 
@@ -62,8 +62,9 @@ export const downloadFile = async (url: string, target: string, isJson = false, 
 
 export const downloadBigFile = async (url: string, target: string) => {
   const response = await fetch(url);
-  if (!response.ok) throw new Error(`unexpected response ${response.statusText} when fetching ${url}`);
-  await streamPipeline(response.body, createWriteStream(target));
+  if (!response.ok || !response.body)
+    throw new Error(`unexpected response ${response.statusText} when fetching ${url}`);
+  await streamPipeline(response.body as unknown as PipelineSource<any>, createWriteStream(target));
 };
 
 export const all = async <T>(values: Array<() => Promise<T>>, batch = 10): Promise<T[]> => {
