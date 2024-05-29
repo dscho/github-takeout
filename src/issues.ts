@@ -53,15 +53,19 @@ export const downloadIssues = async ({ octokit, iterate, ...config }: Config, { 
       await fs.ensureDir(path.join(folder, `${issue.number}`));
 
       if (config.issueDownloadOption.includes("report")) {
+        const renderedComments = await Promise.all(
+          comments.map(async comment => ({
+            ...comment,
+            body: sanitize(await marked.parse(comment.body ?? "No Content")),
+          }))
+        );
+        const body = sanitize(await marked.parse(issue.body ?? "No Content"));
         const html = mustache.render(reportIssueTemplate, {
           ...issue,
-          comments: comments.map(comment => ({
-            ...comment,
-            body: sanitize(marked.parse(comment.body ?? "No Content")),
-          })),
+          comments: renderedComments,
           username: owner.login,
           repo: name,
-          body: sanitize(marked.parse(issue.body ?? "No Content")),
+          body,
         });
         await fs.writeFile(path.join(folder, `${issue.number}/issue.html`), html);
       }
