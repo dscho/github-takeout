@@ -9,7 +9,7 @@ export const interview = async () => {
   const { auth } = await prompts({
     type: "text",
     name: "auth",
-    message: "Enter a Github access token (https://github.com/settings/tokens/new):",
+    message: "Enter a GitHub access token (https://github.com/settings/tokens/new):",
   });
 
   const octokit = new Octokit({ auth });

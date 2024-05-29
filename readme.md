@@ -4,7 +4,7 @@
 
 ![Demo](./demo.gif)
 
-The tool gives you the ability to download a copy of your data on Github. You can highly customize what you want and what not, and also in which form. With all options enabled, the downloaded data includes
+The tool gives you the ability to download a copy of your data on GitHub. You can highly customize what you want and what not, and also in which form. With all options enabled, the downloaded data includes
 
 - clones of the repositories, optionally with all branches on remote
 - all issues, including PRs, as HTML reports and raw JSON dumps, as well as .diff and .patch files for the PRs
