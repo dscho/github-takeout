@@ -6,7 +6,7 @@
     "esModuleInterop": true,
     "module": "Node16",
     "target": "es2017",
-    "moduleResolution": "Node"
+    "moduleResolution": "Node16"
   },
   "include": ["src"],
   "exclude": ["src/**/template-*"]
